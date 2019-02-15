@@ -17,13 +17,10 @@ bqm = dimod.BinaryQuadraticModel(linear, quadratic, 0.0, dimod.BINARY)
 
 sampler = EmbeddingComposite(DWaveSampler())
 response = sampler.sample(bqm, num_reads=shots)
-
 print('\n************ QUBO - Results - Method 1 using converting to BQM **************')
 for res in response.data(['sample', 'energy', 'num_occurrences']):
     print('|s1 = %s |s2 = %s | Energy = %f | Probability  = %f %% ' % (res.sample[1],res.sample[2],
           res.energy, res.num_occurrences*100/shots))
-
-
 
 # Solving as a QUBO Problem - Method 2 using automatic embedding
 j01=1
@@ -35,7 +32,6 @@ Q=dict(linear)
 Q.update(quadratic)
 
 response = EmbeddingComposite(DWaveSampler()).sample_qubo(Q,num_reads=shots)
-
 print('\n************ QUBO - Results - Method 2 using automatic embedding ************** \n')
 for res in response.data(['sample', 'energy', 'num_occurrences']):
     print('|s1 = %s |s2 = %s | Energy = %f | Probability  = %f %% ' % (res.sample['s0'],res.sample['s1'],
@@ -45,15 +41,15 @@ for res in response.data(['sample', 'energy', 'num_occurrences']):
 j01=1
 h0=-0.2
 h1=-0.2
-q1=0
-q2=1
+q1=1
+q2=0
 biases = {(q1,q1): h0, (q2,q2): h1}
 coupler_strengths = {(q1,q2): j01}
 Q=dict(biases)
 Q.update(coupler_strengths)
 
-response = EmbeddingComposite(DWaveSampler()).sample_qubo(Q,num_reads=shots)
-# response = sampler.sample(bqm, num_reads=shots)
+sampler = DWaveSampler()
+response = sampler.sample_qubo(Q, num_reads=shots)
 
 print('\n************ QUBO - Results - Method 3 using manual embedding ************** \n')
 print('Unit cell status :',DWaveSampler().nodelist[0:8])
